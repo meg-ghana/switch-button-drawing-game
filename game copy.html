@@ -17,6 +17,7 @@
         const rectThickness = 20;
         const rectCoords = [0, 0];
         const dotCoords = [];
+        const shapes = [];
         var rectMoving = 0; // 0 = left/right, 1 = up/down
         var change = [3, 3];
 
@@ -38,14 +39,33 @@
             ctx.stroke();
         }
 
-        function drawDots() {
-            for(let i = 0; i < dotCoords.length; i++) {
-                ctx.fillRect(dotCoords[i][0], dotCoords[i][1], 5, 5);
-            }
+        function distance(x1, y1, x2, y2) {
+            return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+        }
 
+        function drawDots() {
             // draw lines between dots
             for(let i = 0; i < dotCoords.length - 1; i++) {
                 drawLine(dotCoords[i][0], dotCoords[i][1], dotCoords[i+1][0], dotCoords[i+1][1]);
+            }
+            
+            for(let i = 0; i < dotCoords.length; i++) {
+                // draw circle
+                ctx.beginPath();
+                ctx.arc(dotCoords[i][0], dotCoords[i][1], 5, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+        }
+
+        function drawShapes() {
+            for(let i = 0; i < shapes.length; i++) {
+                ctx.beginPath();
+                ctx.moveTo(shapes[i][0][0], shapes[i][0][1]);
+                for(let j = 1; j < shapes[i].length; j++) {
+                    ctx.lineTo(shapes[i][j][0], shapes[i][j][1]);
+                }
+                ctx.closePath();
+                ctx.fill();
             }
         }
 
@@ -56,9 +76,8 @@
             drawRect(rectCoords[0], 0, rectThickness, dims[1]);
             drawRect(0, rectCoords[1], dims[0], rectThickness);
 
-            for(let i = 0; i < dotCoords.length; i++) {
-                drawRect(dotCoords[i][0], dotCoords[i][1], rectThickness, rectThickness);
-            }
+            drawDots();
+            drawShapes();
         }
 
         function init() {
@@ -95,8 +114,23 @@
             } 
             else {
                 rectMoving = 0;
-                dotCoords.push([...rectCoords]);
-                console.log(dotCoords);
+                if (dotCoords.length < 3) {
+                    dotCoords.push([...rectCoords]);
+                    init();
+                    return;
+                }
+                if (distance(rectCoords[0], rectCoords[1], dotCoords[0][0], dotCoords[0][1]) < 50) {
+                    // remove all dots in dots array and append array of dots in shapes
+                    shapes.push([]);
+                    while (dotCoords.length > 0) {
+                        let dot = dotCoords.shift();
+                        shapes[shapes.length - 1].push(dot);
+                    }
+                }
+                else {
+                    dotCoords.push([...rectCoords]);
+                }
+
                 init();
             }
         }
