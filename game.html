@@ -30,14 +30,18 @@
         // const imageData = ctx.createImageData(canvas.width, canvas.height);
 
         loop();
-        // initialize the canvas
 
+        const colors = ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#9400D3']
+        // initialize the canvas
+        
+        
         // update the rectangle
         function update_rectangle_updown() {
             ctx.globalAlpha = 0.5;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.fillRect(0, y - 10, canvas.width, 20);
             drawLines();
+            drawcolors();
             ++y;
             y %= canvas.height;
         }
@@ -48,10 +52,24 @@
             ctx.fillRect(x - 10, 0, 20, canvas.height);
             ctx.fillRect(0, y - 10, canvas.width, 20);
             drawLines();
+            drawcolors();
             ++x;
             x %= canvas.width;
         }
         
+        function colorselection(i){
+                ctx.fillStyle = colors[i];
+                let i = coords.length - 2;
+                ctx.beginPath();
+                ctx.globalAlpha = 0.5;
+                ctx.moveTo(coords[i][0].x, coords[i][0].y);
+                for(let j = 1; j < coords[i].length; j++)
+                {
+                    ctx.lineTo(coords[i][j].x, coords[i][j].y);
+                }
+                ctx.closePath();
+                ctx.fill();
+        }
         // on click --> stop the rectangle from oving and print the x and y coordinate
 
         function drawLines() {
@@ -117,7 +135,10 @@
                     if (coords[i].length > 2 && Math.pow(coords[i][0].x-x, 2) + Math.pow(coords[i][0].y-y, 2) < 400) {
                         
                         coords.push([]); // Start a new polygon
-                        
+                        for(let i = 0; i<7;i++)
+                            colorselection(i);
+                            
+                                                
                     } else {
                         coords[i].push({x: x, y: y});
                     }
