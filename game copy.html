@@ -162,6 +162,9 @@
         function canvasClicked(e) {
             if (currentState == 1) {
                 currentState = 0; // change state back to sliding bars
+                currentColor = 0; // reset color
+                lastTime = undefined; // reset timer
+                
                 window.cancelAnimationFrame(animationFrame); // cancel color animation
                 polygon_colors.push(colors[current_color]); // add new polygon color
 
