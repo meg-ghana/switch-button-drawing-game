@@ -4,7 +4,7 @@
     <style>
         body {
             margin: 0;
-            overflow: none;
+            overflow: hidden;
         }
     </style>
 </head>
@@ -12,19 +12,35 @@
 <body>
     <canvas id="canvas"></canvas>
     <script>
+        // canvas constants
         const ctx = document.getElementById('canvas').getContext('2d');
         const dims = [window.innerWidth, window.innerHeight];
-        const rectThickness = 20;
-        const rectCoords = [0, 0];
-        const dotCoords = [];
-        const shapes = [];
-        var rectMoving = 0; // 0 = left/right, 1 = up/down
-        var change = [3, 3];
-
         canvas.width = dims[0];
         canvas.height = dims[1];
         ctx.globalAlpha = 0.5;
         ctx.fillStyle = "#474973";
+
+        // bar/shape constants
+        const rectThickness = 20;
+        const rectCoords = [0, 0];
+        const dotCoords = [];
+        const shapes = [];
+        
+        //colors
+        const colors = ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#9400D3']
+        var current_color = 0; // index of the current color
+        var polygon_colors = [] // colors of each polygon
+        
+        // state of moving bars
+        var rectMoving = 0; // 0 = left/right, 1 = up/down
+        var change = [3, 3];
+        
+        // global state variables
+        var animationFrame = 0;
+        var currentState = 0; // 0 = moving bar; 1 = coloring
+        let lastTime;
+        const timeBetweenRectMoveTicks = 20; // Increase this number to decrease speed
+        const timeBetweenColorChangeTicks = 1000; // Increase this number to decrease speed
 
         canvas.addEventListener('mousedown', canvasClicked, false); 
 
@@ -57,27 +73,40 @@
             }
         }
 
+        function drawShape(dots, color) {
+            let oldFillStyle = ctx.fillStyle;
+            ctx.fillStyle = color;
+
+            ctx.beginPath();
+            ctx.moveTo(dots[0][0], dots[0][1]);
+            for (let i = 1; i < dots.length; i++) ctx.lineTo(dots[i][0], dots[i][1]);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = oldFillStyle;
+        }
+
         function drawShapes() {
             for(let i = 0; i < shapes.length; i++) {
-                ctx.beginPath();
-                ctx.moveTo(shapes[i][0][0], shapes[i][0][1]);
-                for(let j = 1; j < shapes[i].length; j++) {
-                    ctx.lineTo(shapes[i][j][0], shapes[i][j][1]);
-                }
-                ctx.closePath();
-                ctx.fill();
+                drawShape(shapes[i], polygon_colors[i]);
             }
         }
 
         function drawEverything() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // horizontally moving rectangle + vertically moving rectangle
-            drawRect(rectCoords[0], 0, rectThickness, dims[1]);
-            drawRect(0, rectCoords[1], dims[0], rectThickness);
+            if (currentState == 0) {
+                // horizontally moving rectangle + vertically moving rectangle
+                drawRect(rectCoords[0], 0, rectThickness, dims[1]);
+                drawRect(0, rectCoords[1], dims[0], rectThickness);
+            }
 
             drawDots();
             drawShapes();
+
+            if (currentState == 1) {
+                drawShape(shapes[shapes.length - 1], colors[current_color]);   
+            }
         }
 
         function init() {
@@ -91,52 +120,92 @@
             drawEverything();
         }
 
-        function moveRect() {
+        function moveRect(timestamp) {
             // clear the canvas
-            ctx.clearRect(0, 0, dims[0], dims[1]);
+            if (lastTime === undefined) {
+                lastTime = timestamp;
+            }
+            const elapsed = timestamp - lastTime;
 
-            // change direction if the rectangle reaches the edge
-            if (rectCoords[rectMoving] > dims[rectMoving] || rectCoords[rectMoving] < 0) {
-                change[rectMoving] *= -1;
+            if (elapsed >= timeBetweenRectMoveTicks) {
+
+                ctx.clearRect(0, 0, dims[0], dims[1]);
+
+                // change direction if the rectangle reaches the edge
+                if (rectCoords[rectMoving] > dims[rectMoving] || rectCoords[rectMoving] < 0) {
+                    change[rectMoving] *= -1;
+                }
+
+                // move the rectangle
+                rectCoords[rectMoving] += change[rectMoving];
+
+                lastTime += timeBetweenRectMoveTicks;
+                drawEverything();
             }
 
-            // move the rectangle
-            rectCoords[rectMoving] += change[rectMoving];
+            animationFrame = window.requestAnimationFrame(moveRect);
+        }
 
-            drawEverything();
+        function colorAnimation(timestamp) {
+            const elapsed = timestamp - lastTime;
 
-            window.requestAnimationFrame(moveRect);
+            if (elapsed >= timeBetweenColorChangeTicks) {
+                lastTime += timeBetweenColorChangeTicks;
+
+                current_color = (current_color + 1) % colors.length;
+                drawEverything();
+            }
+
+            animationFrame = window.requestAnimationFrame(colorAnimation);
         }
 
         function canvasClicked(e) {
-            if (rectMoving == 0) {
-                rectMoving = 1;
-            } 
-            else {
-                rectMoving = 0;
-                if (dotCoords.length < 3) {
-                    dotCoords.push([...rectCoords]);
-                    init();
-                    return;
-                }
-                if (distance(rectCoords[0], rectCoords[1], dotCoords[0][0], dotCoords[0][1]) < 50) {
-                    // remove all dots in dots array and append array of dots in shapes
-                    shapes.push([]);
-                    while (dotCoords.length > 0) {
-                        let dot = dotCoords.shift();
-                        shapes[shapes.length - 1].push(dot);
-                    }
-                }
-                else {
-                    dotCoords.push([...rectCoords]);
-                }
+            if (currentState == 1) {
+                currentState = 0; // change state back to sliding bars
+                window.cancelAnimationFrame(animationFrame); // cancel color animation
+                polygon_colors.push(colors[current_color]); // add new polygon color
 
-                init();
+                // restart sliding bar animation
+                animationFrame = window.requestAnimationFrame(moveRect);
+            }
+            else {
+                if (rectMoving == 0) {
+                    rectMoving = 1;
+                } 
+                else {
+                    rectMoving = 0;
+                    if (dotCoords.length < 3) {
+                        dotCoords.push([...rectCoords]);
+                        init();
+                        return;
+                    }
+                    if (distance(rectCoords[0], rectCoords[1], dotCoords[0][0], dotCoords[0][1]) < 50) {
+                        // remove all dots in dots array and append array of dots in shapes
+                        shapes.push([]);
+                        while (dotCoords.length > 0) {
+                            let dot = dotCoords.shift();
+                            shapes[shapes.length - 1].push(dot);
+                        }
+
+                        // cancel sliding bar animation
+                        window.cancelAnimationFrame(animationFrame);
+
+                        // start color animation
+                        currentState = 1;
+                        animationFrame = window.requestAnimationFrame(colorAnimation);
+                        
+                    }
+                    else {
+                        dotCoords.push([...rectCoords]);
+                    }
+
+                    init();
+                }
             }
         }
 
         init();
-        moveRect();
+        animationFrame = window.requestAnimationFrame(moveRect);
     </script>
 </body>
 </html>
