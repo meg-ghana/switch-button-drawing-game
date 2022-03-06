@@ -94,15 +94,14 @@
 
         function drawEverything() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawDots();
+            drawShapes();
 
             if (currentState == 0) {
                 // horizontally moving rectangle + vertically moving rectangle
                 drawRect(rectCoords[0], 0, rectThickness, dims[1]);
                 drawRect(0, rectCoords[1], dims[0], rectThickness);
             }
-
-            drawDots();
-            drawShapes();
 
             if (currentState == 1) {
                 drawShape(shapes[shapes.length - 1], colors[current_color]);   
