@@ -14,30 +14,40 @@
     <script>
         // canvas constants
         const ctx = document.getElementById('canvas').getContext('2d');
+        const normalAlpha = 0.7;
         let dims = [window.innerWidth, window.innerHeight];
         canvas.width = dims[0];
         canvas.height = dims[1];
-        ctx.globalAlpha = 0.5;
+        ctx.globalAlpha = normalAlpha;
         ctx.fillStyle = "#474973";
-
+        
         // bar/shape constants
         const rectThickness = 20;
         const rectCoords = [0, 0];
         const dotCoords = [];
         const shapes = [];
-        
-        //colors
+        let horizontal_start = 0;
+        let horizontal_end = 0;
+        let vertical_start = 0;
+        let vertical_end = 0;
+        // colors
         const colors = ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#9400D3']
-        var current_color = 0; // index of the current color
+        let current_color = 0; // index of the current color
         var polygon_colors = [] // colors of each polygon
         
+        // images
+        const images = ['bird', 'cat', 'cow', 'dog', 'frog', 'squirrel'];
+        let currentImage = 0;
+        for (let i = 0; i < images.length; i++) images[i] = './images/' + images[i] + '.jpg';
+        const timeBetweenImageChangeTicks = 1000; // Increase this number to decrease speed
+
         // state of moving bars
         var rectMoving = 0; // 0 = left/right, 1 = up/down
         var change = [3, 3];
         
         // global state variables
         var animationFrame = 0;
-        var currentState = 0; // 0 = moving bar; 1 = coloring
+        var currentState = 2; // 0 = moving bar; 1 = coloring; 2 = image
         let lastTime;
         const timeBetweenRectMoveTicks = 20; // Increase this number to decrease speed
         const timeBetweenColorChangeTicks = 1000; // Increase this number to decrease speed
@@ -73,6 +83,16 @@
             }
         }
 
+        function drawImage(){
+            let img = new Image();
+            img.src = images[currentImage];
+            let width = img.width;
+            let height = img.height;
+            let left_corner = (dims[0]/2)-(width/2);
+            let top_corner = (dims[1]/2)-(height/2);
+            ctx.drawImage(img,left_corner,top_corner);
+        }
+
         function drawShape(dots, color) {
             let oldFillStyle = ctx.fillStyle;
             ctx.fillStyle = color;
@@ -87,22 +107,26 @@
         }
 
         function drawShapes() {
+            ctx.globalAlpha = 1;
             for(let i = 0; i < shapes.length; i++) {
                 drawShape(shapes[i], polygon_colors[i]);
             }
+            ctx.globalAlpha = normalAlpha;
         }
 
         function updateCanvas() {
             dims = [window.innerWidth, window.innerHeight];
             canvas.width = dims[0];
             canvas.height = dims[1];
-            ctx.globalAlpha = 0.5;
+            ctx.globalAlpha = normalAlpha;
             ctx.fillStyle = "#474973";
         }
 
         function drawEverything() {
             updateCanvas();
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            drawImage();
             drawDots();
             drawShapes();
 
@@ -129,16 +153,13 @@
         }
 
         function moveRect(timestamp) {
-            // clear the canvas
+            // if lastTime is undefined, set it to current time
             if (lastTime === undefined) {
                 lastTime = timestamp;
             }
             const elapsed = timestamp - lastTime;
 
             if (elapsed >= timeBetweenRectMoveTicks) {
-
-                ctx.clearRect(0, 0, dims[0], dims[1]);
-
                 // change direction if the rectangle reaches the edge
                 if (rectCoords[rectMoving] > dims[rectMoving] || rectCoords[rectMoving] < 0) {
                     change[rectMoving] *= -1;
@@ -147,22 +168,44 @@
                 // move the rectangle
                 rectCoords[rectMoving] += change[rectMoving];
 
-                lastTime += timeBetweenRectMoveTicks;
-                drawEverything();
+                lastTime = timestamp;
             }
+            drawEverything();
 
             animationFrame = window.requestAnimationFrame(moveRect);
         }
 
+        function imageAnimation(timestamp) {
+            // if lastTime is undefined, set it to current time
+            if (lastTime === undefined) {
+                lastTime = timestamp;
+            }
+            const elapsed = timestamp - lastTime;
+            console.log(elapsed);
+
+            if (elapsed >= timeBetweenImageChangeTicks) {
+                lastTime = timestamp;
+
+                currentImage = (currentImage + 1) % images.length;
+            }
+            drawEverything();
+
+            animationFrame = window.requestAnimationFrame(imageAnimation);
+        }
+
         function colorAnimation(timestamp) {
+            // if lastTime is undefined, set it to current time
+            if (lastTime === undefined) {
+                lastTime = timestamp;
+            }
             const elapsed = timestamp - lastTime;
 
             if (elapsed >= timeBetweenColorChangeTicks) {
                 lastTime = timestamp;
 
                 current_color = (current_color + 1) % colors.length;
-                drawEverything();
             }
+            drawEverything();
 
             animationFrame = window.requestAnimationFrame(colorAnimation);
         }
@@ -171,10 +214,16 @@
             if (currentState == 1) {
                 currentState = 0; // change state back to sliding bars
                 currentColor = 0; // reset color
-                //lastTime = undefined; // reset timer
                 
                 window.cancelAnimationFrame(animationFrame); // cancel color animation
                 polygon_colors.push(colors[current_color]); // add new polygon color
+
+                // restart sliding bar animation
+                animationFrame = window.requestAnimationFrame(moveRect);
+            }
+            else if (currentState == 2) {
+                currentState = 0; // change state back to sliding bars
+                window.cancelAnimationFrame(animationFrame); // cancel image animation
 
                 // restart sliding bar animation
                 animationFrame = window.requestAnimationFrame(moveRect);
@@ -216,7 +265,15 @@
         }
 
         init();
-        animationFrame = window.requestAnimationFrame(moveRect);
+        if (currentState == 0) {
+            animationFrame = window.requestAnimationFrame(moveRect);
+        }
+        else if (currentState == 1) {
+            animationFrame = window.requestAnimationFrame(colorAnimation);
+        }
+        else if (currentState == 2) {
+            animationFrame = window.requestAnimationFrame(imageAnimation);
+        }
     </script>
 </body>
 </html>
