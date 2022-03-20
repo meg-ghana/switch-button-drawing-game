@@ -4,7 +4,7 @@
     <style>
         body {
             margin: 0;
-            overflow: none;
+            overflow: hidden;
         }
     </style>
 </head>
@@ -103,6 +103,7 @@
         function drawEverything() {
             updateCanvas();
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+
             drawDots();
             drawShapes();
 
@@ -147,7 +148,7 @@
                 // move the rectangle
                 rectCoords[rectMoving] += change[rectMoving];
 
-                lastTime += timeBetweenRectMoveTicks;
+                lastTime = timestamp;
                 drawEverything();
             }
 
@@ -155,6 +156,9 @@
         }
 
         function colorAnimation(timestamp) {
+            if (lastTime === undefined) {
+                lastTime = timestamp;
+            }
             const elapsed = timestamp - lastTime;
 
             if (elapsed >= timeBetweenColorChangeTicks) {
@@ -171,8 +175,7 @@
             if (currentState == 1) {
                 currentState = 0; // change state back to sliding bars
                 currentColor = 0; // reset color
-                //lastTime = undefined; // reset timer
-                
+
                 window.cancelAnimationFrame(animationFrame); // cancel color animation
                 polygon_colors.push(colors[current_color]); // add new polygon color
 
