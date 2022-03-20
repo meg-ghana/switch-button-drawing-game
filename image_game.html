@@ -234,8 +234,11 @@
                 } 
                 else {
                     rectMoving = 0;
+                    let dotX = rectCoords[0] + rectThickness / 2;
+                    let dotY = rectCoords[1] + rectThickness / 2;
+
                     if (dotCoords.length < 3) {
-                        dotCoords.push([...rectCoords]);
+                        dotCoords.push([dotX, dotY]);
                         init();
                         return;
                     }
@@ -256,7 +259,7 @@
                         
                     }
                     else {
-                        dotCoords.push([...rectCoords]);
+                        dotCoords.push([dotX, dotY]);
                     }
 
                     init();
