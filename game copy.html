@@ -4,7 +4,7 @@
     <style>
         body {
             margin: 0;
-            overflow: hidden;
+            overflow: none;
         }
     </style>
 </head>
@@ -14,7 +14,7 @@
     <script>
         // canvas constants
         const ctx = document.getElementById('canvas').getContext('2d');
-        const dims = [window.innerWidth, window.innerHeight];
+        let dims = [window.innerWidth, window.innerHeight];
         canvas.width = dims[0];
         canvas.height = dims[1];
         ctx.globalAlpha = 0.5;
@@ -92,17 +92,25 @@
             }
         }
 
+        function updateCanvas() {
+            dims = [window.innerWidth, window.innerHeight];
+            canvas.width = dims[0];
+            canvas.height = dims[1];
+            ctx.globalAlpha = 0.5;
+            ctx.fillStyle = "#474973";
+        }
+
         function drawEverything() {
+            updateCanvas();
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawDots();
+            drawShapes();
 
             if (currentState == 0) {
                 // horizontally moving rectangle + vertically moving rectangle
                 drawRect(rectCoords[0], 0, rectThickness, dims[1]);
                 drawRect(0, rectCoords[1], dims[0], rectThickness);
             }
-
-            drawDots();
-            drawShapes();
 
             if (currentState == 1) {
                 drawShape(shapes[shapes.length - 1], colors[current_color]);   
@@ -150,7 +158,7 @@
             const elapsed = timestamp - lastTime;
 
             if (elapsed >= timeBetweenColorChangeTicks) {
-                lastTime += timeBetweenColorChangeTicks;
+                lastTime = timestamp;
 
                 current_color = (current_color + 1) % colors.length;
                 drawEverything();
@@ -162,6 +170,9 @@
         function canvasClicked(e) {
             if (currentState == 1) {
                 currentState = 0; // change state back to sliding bars
+                currentColor = 0; // reset color
+                //lastTime = undefined; // reset timer
+                
                 window.cancelAnimationFrame(animationFrame); // cancel color animation
                 polygon_colors.push(colors[current_color]); // add new polygon color
 
