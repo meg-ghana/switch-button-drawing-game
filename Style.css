@@ -1,0 +1,76 @@
+* {
+    box-sizing: border-box;
+    margin: 0rem;
+}
+
+h1{
+    text-align:left;
+    text-transform: uppercase;
+    font-family: 'Red Hat Mono', monospace;
+    font-style: italic;
+    font-size: 2.7em;
+    /*background-color: #CA5310; */
+    padding:.7rem 1rem 0.8rem;
+    color:#955E42;
+    margin-bottom: 0;
+    letter-spacing: 0.3rem;
+}
+
+#Instruc{
+    text-align: left;
+    display:flex;
+    padding: 1em 0.5em;
+    padding-left:2em;
+    background-color: #95A3B3; 
+    font-family: 'Red Hat Mono', monospace;
+    font-weight: 700;
+    font-size: 0.7rem;
+    color:#22031F   ;
+    width:50%;
+    /*box-shadow: 0 0 0.4em #87B38D;    */
+}
+
+#Title{
+    text-transform: uppercase;
+    padding:0 1em;
+}
+
+a {
+    all:unset;
+    width: 100%;
+    transition: 0.s cubic-bezier(0.39, 0.575, 0.565, 1) border;
+    border-radius: 1rem;
+    border: 5px solid transparent;
+    color: #9C914F;
+    background-color: #4B4E6D;
+    margin: 3rem 10vh;
+    text-align: center;
+    font-size: 3em;
+    text-transform: capitalize;
+    padding: 1em;
+    font-family:'Red Hat Mono', monospace ;
+}
+
+.active {
+    border: 5px solid #7EBC89;
+    box-shadow: 0 0 0.4em black;
+    color:#C1DBB3;
+}
+    
+body {
+    text-align: center;
+}
+
+#Buttons{
+    display: flex;
+    flex-direction:row;
+    background-color: #955E42;
+    margin: 6rem 10rem 1rem;
+    border-radius: 2rem;
+}
+
+@media (max-width: 1071px) {
+    a{
+        font-size: 2em;
+    }
+}
