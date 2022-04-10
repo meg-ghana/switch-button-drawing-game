@@ -1,64 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <style>
-            * {
-                box-sizing: border-box;
-                /*font-family: ;*/
-            }
 
-            a {
-                padding: 1em;
-                width: 40%;
-                background-color: #9400D3;
-                display: inline-block;
-                transition: border 0.5s;
-                border-radius: 5px;
-                color: white;
-                border: 5px solid transparent;
-                text-decoration: none;
-                text-transform: uppercase;
-            }
+<head></head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-            .active {
-                border: 5px solid black;
-            }
+<link rel="stylesheet" href="Style.css">
+<title>Colors</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Dosis:ital,wght@0,300;0,400;1,300;1,500;1,600&display=swap');
+</style>
+</head>
 
-            body {
-                text-align: center;
-            }
-        </style>
-    </head>
-
-    <body>
-        <h1>Welcome to COLOR</h1>
-        <hr>
-        <div>
-            <h2>Instructions</h2>
+<body>
+    <div id="Header">
+        <h1>Colors
+            <hr>
+        </h1>
+        <div id="Instruc">
+            <p id="Title">Instructions:</p>
             <p>
-                A. choose if you would like to draw an animal (2) or something of your choice (1) <br>
-                B. 
+                choose if you would like to draw an animal (2) or something of your choice (1)
+
             </p>
-            <a href="game copy.html" id="1button">1. blank canvas</a>
-            <a href="image_game.html" id="2button">2. use an image</a>
         </div>
-        <script>
-            let current = "1button";
+    </div>
 
-            document.addEventListener('mousedown', switchscreens, false);
-            
-            function togglehighlight(){
-                document.getElementById(current).classList.remove("active");
-                current = current === "1button" ? "2button" : "1button";
-                document.getElementById(current).classList.add("active");
-            }
+    <div id="Buttons">
 
-            function switchscreens(){
-                window.location.href = document.getElementById(current).href;
-            }
+        <a href="game copy.html" id="1button">1. blank canvas</a>
+        <a href="image_game.html" id="2button">2. use an image</a>
+    </div>
+    <script>
+        let current = "1button";
 
-            setInterval(togglehighlight, 1000);
-            
-        </script>
-    </body>
+        document.addEventListener('keydown', (e) => {
+            if (e.key == ' ')
+                switchscreens();
+        }, false);
+
+        function togglehighlight() {
+            document.getElementById(current).classList.remove("active");
+            current = current === "1button" ? "2button" : "1button";
+            document.getElementById(current).classList.add("active");
+        }
+
+        function switchscreens() {
+            window.location.href = document.getElementById(current).href;
+        }
+
+        setInterval(togglehighlight, 1000);
+
+    </script>
+
+</body>
+
 </html>
