@@ -65,7 +65,7 @@ body {
 #Buttons{
     display: flex;
     flex-direction:row;
-    background-color: #955E42;
+    background-color: #95A3B3;
     margin: 6rem 10rem 1rem;
     border-radius: 2rem;
 }
