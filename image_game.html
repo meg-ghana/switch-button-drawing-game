@@ -23,7 +23,8 @@
         ctx.fillStyle = "#474973";
 
         // bar/shape constants
-        const rectThickness = 20;
+        const bigRectThickness = 60;
+        const smallRectThickness = 20;
         const rectCoords = [0, 0];
         const dotCoords = [];
         const shapes = [];
@@ -49,14 +50,14 @@
 
         // state of moving bars
         var rectMoving = 0; // 0 = left/right, 1 = up/down
-        var change = [3, 3];
+        var change = [6, 3, 6, 3];
 
         // global state variables
         var animationFrame = 0;
         var currentState = 2; // 0 = moving bar; 1 = coloring; 2 = image
         let lastTime;
-        const timeBetweenRectMoveTicks = 50; // Increase this number to decrease speed
-        const timeBetweenColorChangeTicks = 1800; // Increase this number to decrease speed
+        const timeBetweenRectMoveTicks = 30; // Increase this number to decrease speed
+        const timeBetweenColorChangeTicks = 1000; // Increase this number to decrease speed
 
         document.addEventListener('keydown', (e) => {
             if (e.key == ' ')
@@ -148,8 +149,18 @@
 
             if (currentState == 0) {
                 // horizontally moving rectangle + vertically moving rectangle
-                drawRect(rectCoords[0], 0, rectThickness, dims[1]);
-                drawRect(0, rectCoords[1], dims[0], rectThickness);
+                
+                if (rectMoving == 0) {
+                    drawRect(rectCoords[0], 0, bigRectThickness, dims[1]);
+                } else {
+                    drawRect(rectCoords[0], 0, smallRectThickness, dims[1]);
+
+                    if (rectMoving == 2) {
+                        drawRect(0, rectCoords[1], dims[0], bigRectThickness);
+                    } else if (rectMoving == 3) {
+                        drawRect(0, rectCoords[1], dims[0], smallRectThickness);
+                    }
+                }
             }
 
             if (currentState == 1) {
@@ -197,8 +208,7 @@
                 lastTime = timestamp;
             }
             const elapsed = timestamp - lastTime;
-            console.log(elapsed);
-
+            
             if (elapsed >= timeBetweenImageChangeTicks) {
                 lastTime = timestamp;
 
@@ -227,7 +237,7 @@
         }
 
         function canvasClicked(e) {
-            if (currentState == 1) {
+            if (currentState == 1) { // color animation
                 currentState = 0; // change state back to sliding bars
                 currentColor = 0; // reset color
 
@@ -237,21 +247,35 @@
                 // restart sliding bar animation
                 animationFrame = window.requestAnimationFrame(moveRect);
             }
-            else if (currentState == 2) {
+            else if (currentState == 2) { // image animation
                 currentState = 0; // change state back to sliding bars
                 window.cancelAnimationFrame(animationFrame); // cancel image animation
 
                 // restart sliding bar animation
                 animationFrame = window.requestAnimationFrame(moveRect);
             }
-            else {
-                if (rectMoving == 0) {
+            else { // state 0
+                if (rectMoving == 0) { //finished horizontal
                     rectMoving = 1;
                 }
-                else {
+                else if(rextMoving == 1) { // finished vertical
+
+                    rectMoving = 2;
+                    let dotX = rectCoords[0] + bigRectThickness / 2;
+                    let dotY = rectCoords[1] + bigRectThickness / 2;
+                    //start the small one at dotx
+                    //start the small one at doty
+
+                    //move the small ones
+                }
+                else if(rextMoving == 2) {
+
+                    rectMoving = 3;
+                }
+                else { // finished vertical --> finished small vertical
                     rectMoving = 0;
-                    let dotX = rectCoords[0] + rectThickness / 2;
-                    let dotY = rectCoords[1] + rectThickness / 2;
+                    let dotX = rectCoords[0] + bigRectThickness / 2;
+                    let dotY = rectCoords[1] + bigRectThickness / 2;
 
                     if (dotCoords.length < 3) {
                         dotCoords.push([dotX, dotY]);
