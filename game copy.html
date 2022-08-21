@@ -7,15 +7,13 @@
             margin: 0;
             overflow: hidden;
         }
+
     </style>
 </head>
 
 <body>
+    <audio controls autoplay loop src="music/lofi.mp3" id="audio" style="display: none;"></audio>
     <canvas id="canvas"></canvas>
-    <iframe width="1" height="1" wmode="transparent"
-        src="//www.youtube.com/embed/lTRiuFIWV54?autoplay=1&loop=1&playlist=lTRiuFIWV54" frameborder="0"
-        allowfullscreen>
-    </iframe>
     <script>
         // canvas constants
         const ctx = document.getElementById('canvas').getContext('2d');
@@ -51,6 +49,10 @@
             if (e.key == ' ')
                 canvasClicked(e);
         }, false);
+
+        window.onbeforeunload = function () {
+            window.location.href = 'index.html';
+        }
 
         function drawRect(x, y, w, h) {
             ctx.fillRect(x, y, w, h);

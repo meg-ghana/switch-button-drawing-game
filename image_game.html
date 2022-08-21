@@ -7,10 +7,12 @@
             margin: 0;
             overflow: hidden;
         }
+
     </style>
 </head>
 
 <body>
+    <audio controls autoplay loop src="music/lofi.mp3" id="audio" style="display: none;"></audio>
     <canvas id="canvas"></canvas>
     <script>
         // canvas constants
@@ -31,6 +33,7 @@
         let horizontal_end = 0;
         let vertical_start = 0;
         let vertical_end = 0;
+
         // colors
         const colors = ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#9400D3']
         let current_color = 0; // index of the current color
@@ -62,6 +65,10 @@
             if (e.key == ' ')
                 canvasClicked(e);
         }, false);
+
+        window.onbeforeunload = function () {
+            window.location.href = 'index.html';
+        }
 
         function drawRect(x, y, w, h) {
             ctx.fillRect(x, y, w, h);
